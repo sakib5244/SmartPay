@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPay</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+font-family:Arial,sans-serif;
+background:#f3f6fb;
+color:#172033;
+transition:.2s
+}
+body.dark{background:#111827;color:#f3f4f6}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0}
+.app{max-width:480px;margin:auto;min-height:100vh;padding-bottom:80px}
+.header{
+background:#0d6efd;color:white;padding:20px;
+border-radius:0 0 24px 24px
+}
+.header-row{display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:bold}
+.small-btn{padding:8px 10px;border-radius:10px;background:#ffffff22;color:white}
+.balance-card{margin-top:20px;background:#ffffff18;padding:20px;border-radius:18px}
+.balance{font-size:32px;font-weight:bold;margin:10px 0}
+.card{background:white;padding:18px;border-radius:18px;margin:14px;box-shadow:0 3px 15px #00000008}
+.dark .card{background:#1f2937}
+.dark input,.dark select{background:#111827;color:white;border-color:#374151}
+h2{font-size:20px;margin-bottom:15px}
+h3{font-size:16px;margin-bottom:10px}
+input,select{
+width:100%;padding:13px;margin:8px 0;
+border:1px solid #d9dfeb;border-radius:12px;background:white
+}
+.primary{width:100%;background:#0d6efd;color:white;padding:14px;border-radius:12px;font-weight:bold;margin-top:8px}
+.secondary{width:100%;background:#e8f1ff;color:#0d6efd;padding:12px;border-radius:12px;margin-top:8px}
+.danger{background:#dc3545;color:white}
+.success{background:#198754;color:white}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action{background:#eaf2ff;color:#0d6efd;padding:18px 10px;border-radius:15px;text-align:center;font-weight:bold}
+.dark .action{background:#263750;color:#8bbaff}
+.item{padding:13px 0;border-bottom:1px solid #e5e7eb}
+.dark .item{border-color:#374151}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:#8490a5;font-size:13px;margin-top:5px}
+.nav{
+position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;
+background:white;display:flex;justify-content:space-around;padding:10px 3px;
+box-shadow:0 -3px 15px #00000012
+}
+.dark .nav{background:#1f2937}
+.nav button{background:none;color:#64748b;font-size:12px;padding:7px}
+.nav button.active{color:#0d6efd;font-weight:bold}
+.hidden{display:none!important}
+.center{text-align:center}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- AUTH -->
+<div id="auth">
+<div class="header">
+<div class="header-row">
+<div class="logo">💳 SmartPay</div>
+<div>
+<button class="small-btn" onclick="toggleLang()">বাংলা / EN</button>
+<button class="small-btn" onclick="toggleTheme()">☀️</button>
+</div>
+</div>
+<h2 id="welcome" style="margin-top:25px">Welcome to SmartPay</h2>
+<p>Smart Digital Payment Demo</p>
+</div>
+
+<div class="card" id="loginBox">
+<h2 id="loginTitle">Login</h2>
+<input id="loginMobile" placeholder="Mobile Number">
+<input id="loginPin" placeholder="4 Digit PIN" type="password" maxlength="4">
+<button class="primary" onclick="login()">Login</button>
+<button class="secondary" onclick="showRegister()">Create Account</button>
+</div>
+
+<div class="card hidden" id="registerBox">
+<h2 id="registerTitle">Customer Registration</h2>
+<input id="regName" placeholder="Full Name">
+<input id="regMobile" placeholder="Mobile Number">
+<input id="regPin" placeholder="Create 4 Digit PIN" type="password" maxlength="4">
+<button class="primary" onclick="registerUser()">Register</button>
+<button class="secondary" onclick="showLogin()">Back to Login</button>
+</div>
+</div>
+
+<!-- MAIN -->
+<div id="main" class="hidden">
+
+<div class="header">
+<div class="header-row">
+<div class="logo">💳 SmartPay</div>
+<div>
+<button class="small-btn" onclick="toggleLang()">বাংলা / EN</button>
+<button class="small-btn" onclick="toggleTheme()">🌙</button>
+</div>
+</div>
+
+<div class="balance-card">
+<div id="userName">User</div>
+<div class="muted" style="color:#ffffffaa" id="balanceTitle">Available Balance</div>
+<div class="balance"><span id="balance">0.00</span> ৳</div>
+<div class="row">
+<div id="userMobile"></div>
+<div id="userRole"></div>
+</div>
+</div>
+</div>
+
+<!-- HOME -->
+<div id="homePage">
+<div class="card">
+<h2 id="quickTitle">Quick Actions</h2>
+<div class="grid">
+<div class="action" onclick="openPage('cashinPage')" id="cashinAction">💰 Cash In</div>
+<div class="action" onclick="openPage('cashoutPage')">💸 Cash Out</div>
+<div class="action" onclick="openPage('workPage')">📋 Work List</div>
+<div class="action" onclick="openPage('historyPage')">📜 History</div>
+</div>
+</div>
+
+<div class="card">
+<h3 id="recentTitle">Recent Transactions</h3>
+<div id="recentTransactions"></div>
+</div>
+</div>
+
+<!-- CASH IN -->
+<div id="cashinPage" class="page hidden">
+<div class="card">
+<h2>💰 Cash In</h2>
+<input id="cashinMobile" placeholder="Customer Mobile">
+<input id="cashinAmount" type="number" placeholder="Amount">
+<button class="primary" onclick="cashin()">Confirm Cash In</button>
+</div>
+</div>
+
+<!-- CASH OUT -->
+<div id="cashoutPage" class="page hidden">
+<div class="card">
+<h2>💸 Cash Out</h2>
+<select id="operator"><option value="">Select Operator</option></select>
+<input id="cashoutNumber" placeholder="Cash Out Number">
+<input id="cashoutAmount" type="number" placeholder="Amount">
+<input id="cashoutPin" type="password" maxlength="4" placeholder="4 Digit PIN">
+<button class="primary" onclick="cashout()">Submit Request</button>
+<div class="muted">Cash out requests require admin approval.</div>
+</div>
+</div>
+
+<!-- WORK -->
+<div id="workPage" class="page hidden">
+<div class="card">
+<h2>📋 Work List</h2>
+<div id="workForm" class="hidden">
+<input id="workMobile" placeholder="Customer Mobile">
+<input id="workAmount" type="number" placeholder="Amount">
+<input id="workDescription" placeholder="Description">
+<button class="primary" onclick="addWork()">Add Work</button>
+</div>
+<div id="workEntries"></div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div id="historyPage" class="page hidden">
+<div class="card">
+<h2>📜 Transaction History</h2>
+<div id="historyList"></div>
+</div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notificationPage" class="page hidden">
+<div class="card">
+<div class="row">
+<h2>🔔 Notifications</h2>
+<button onclick="readAll()" class="secondary" style="width:auto">Read All</button>
+</div>
+<div id="notificationList"></div>
+</div>
+</div>
+
+<!-- PROFILE -->
+<div id="profilePage" class="page hidden">
+<div class="card">
+<h2>👤 Profile</h2>
+<div id="profileInfo"></div>
+<h3 style="margin-top:20px">Change PIN</h3>
+<input id="oldPin" type="password" maxlength="4" placeholder="Current PIN">
+<input id="newPin" type="password" maxlength="4" placeholder="New PIN">
+<button class="primary" onclick="changePin()">Update PIN</button>
+<button class="primary danger" onclick="logout()" style="margin-top:20px">Logout</button>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPage" class="page hidden">
+<div class="card">
+<h2>🛡️ Admin Panel</h2>
+
+<h3>Pending Registrations</h3>
+<div id="pendingUsers"></div>
+
+<h3 style="margin-top:20px">Agent Management</h3>
+<input id="agentName" placeholder="Agent Name">
+<input id="agentMobile" placeholder="Agent Mobile">
+<input id="agentPin" maxlength="4" placeholder="4 Digit PIN">
+<button class="primary" onclick="createAgent()">Create Agent</button>
+
+<h3 style="margin-top:20px">Balance Manager</h3>
+<input id="balanceMobile" placeholder="User Mobile">
+<input id="balanceAmount" type="number" placeholder="Amount">
+<div class="grid">
+<button class="primary" onclick="manageBalance('add')">Add Balance</button>
+<button class="primary danger" onclick="manageBalance('subtract')">Subtract</button>
+</div>
+
+<h3 style="margin-top:20px">Cash Out Requests</h3>
+<div id="cashoutRequests"></div>
+
+<h3 style="margin-top:20px">All Users</h3>
+<div id="allUsers"></div>
+
+<h3 style="margin-top:20px">Operators</h3>
+<input id="operatorName" placeholder="Operator Name">
+<input id="operatorNumber" placeholder="Operator Number">
+<button class="primary" onclick="addOperator()">Add Operator</button>
+<div id="operatorAdminList"></div>
+</div>
+</div>
+
+</div>
+
+<!-- NAV -->
+<div id="navigation" class="nav hidden">
+<button onclick="openPage('homePage')" id="navHome">🏠<br>Home</button>
+<button onclick="openPage('historyPage')" id="navHistory">📜<br>History</button>
+<button onclick="openPage('notificationPage')" id="navNotifications">🔔<br><span id="notificationCount"></span></button>
+<button onclick="openPage('profilePage')" id="navProfile">👤<br>Profile</button>
+<button id="navAdmin" onclick="openPage('adminPage')" class="hidden">🛡️<br>Admin</button>
+</div>
+
+</div>
+
+<script>
+let user=null;
+let lang=localStorage.getItem("smartpay_lang")||"en";
+let theme=localStorage.getItem("smartpay_theme")||"light";
+
+const translations={
+en:{
+welcome:"Welcome to SmartPay",login:"Login",register:"Customer Registration",
+balance:"Available Balance",quick:"Quick Actions",cashin:"Cash In",
+history:"History",profile:"Profile",recent:"Recent Transactions",
+home:"Home",notifications:"Notifications"
+},
+bn:{
+welcome:"SmartPay-এ স্বাগতম",login:"লগইন",register:"কাস্টমার রেজিস্ট্রেশন",
+balance:"বর্তমান ব্যালেন্স",quick:"দ্রুত সেবা",cashin:"ক্যাশ ইন",
+history:"লেনদেন",profile:"প্রোফাইল",recent:"সাম্প্রতিক লেনদেন",
+home:"হোম",notifications:"নোটিফিকেশন"
+}
+};
+
+function T(k){return translations[lang][k]||k}
+
+function toggleLang(){
+lang=lang==="en"?"bn":"en";
+localStorage.setItem("smartpay_lang",lang);
+renderLanguage();
+}
+
+function toggleTheme(){
+theme=theme==="light"?"dark":"light";
+localStorage.setItem("smartpay_theme",theme);
+document.body.className=theme;
+}
+
+document.body.className=theme;
+
+function renderLanguage(){
+document.getElementById("welcome").textContent=T("welcome");
+document.getElementById("loginTitle").textContent=T("login");
+document.getElementById("registerTitle").textContent=T("register");
+document.getElementById("balanceTitle").textContent=T("balance");
+document.getElementById("quickTitle").textContent=T("quick");
+document.getElementById("recentTitle").textContent=T("recent");
+document.getElementById("navHome").innerHTML="🏠<br>"+T("home");
+document.getElementById("navHistory").innerHTML="📜<br>"+T("history");
+document.getElementById("navProfile").innerHTML="👤<br>"+T("profile");
+document.getElementById("cashinAction").innerHTML="💰 "+T("cashin");
+}
+
+renderLanguage();
+
+async function api(url,method="GET",data=null){
+const options={method,headers:{"Content-Type":"application/json"}};
+if(data)options.body=JSON.stringify(data);
+const response=await fetch("/api"+url,options);
+const result=await response.json();
+if(!response.ok)throw new Error(result.error||"Request failed");
+return result;
+}
+
+function showLogin(){
+document.getElementById("loginBox").classList.remove("hidden");
+document.getElementById("registerBox").classList.add("hidden");
+}
+
+function showRegister(){
+document.getElementById("loginBox").classList.add("hidden");
+document.getElementById("registerBox").classList.remove("hidden");
+}
+
+async function registerUser(){
+try{
+const result=await api("/register","POST",{
+name:document.getElementById("regName").value,
+mobile:document.getElementById("regMobile").value,
+pin:document.getElementById("regPin").value
+});
+alert(result.message);
+showLogin();
+}catch(e){alert(e.message)}
+}
+
+async function login(){
+try{
+const result=await api("/login","POST",{
+mobile:document.getElementById("loginMobile").value,
+pin:document.getElementById("loginPin").value
+});
+user=result.user;
+document.getElementById("auth").classList.add("hidden");
+document.getElementById("main").classList.remove("hidden");
+document.getElementById("navigation").classList.remove("hidden");
+await refresh();
+openPage("homePage");
+}catch(e){alert(e.message)}
+}
+
+async function logout(){
+try{await api("/logout","POST")}catch(e){}
+user=null;
+document.getElementById("main").classList.add("hidden");
+document.getElementById("navigation").classList.add("hidden");
+document.getElementById("auth").classList.remove("hidden");
+showLogin();
+}
+
+function openPage(page){
+document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+document.getElementById("homePage").classList.add("hidden");
+document.getElementById(page).classList.remove("hidden");
+
+document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+if(page==="homePage")document.getElementById("navHome").classList.add("active");
+if(page==="historyPage")document.getElementById("navHistory").classList.add("active");
+if(page==="notificationPage")document.getElementById("navNotifications").classList.add("active");
+if(page==="profilePage")document.getElementById("navProfile").classList.add("active");
+
+refresh();
+}
+
+async function refresh(){
+if(!user)return;
+try{
+const me=await api("/me");
+user=me.user;
+document.getElementById("userName").textContent=user.name;
+document.getElementById("userMobile").textContent=user.mobile;
+document.getElementById("userRole").textContent=user.role;
+document.getElementById("balance").textContent=Number(user.balance).toFixed(2);
+
+document.getElementById("cashinAction").classList.toggle("hidden",user.role!=="agent");
+document.getElementById("workForm").classList.toggle("hidden",user.role!=="agent");
+document.getElementById("navAdmin").classList.toggle("hidden",user.role!=="admin");
+
+if(user.role==="admin")loadAdmin();
+loadHistory();
+loadNotifications();
+loadWork();
+loadOperators();
+loadProfile();
+}catch(e){console.error(e)}
+}
+
+async function cashin(){
+try{
+await api("/cashin","POST",{
+mobile:document.getElementById("cashinMobile").value,
+amount:document.getElementById("cashinAmount").value
+});
+alert("Cash In successful");
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function cashout(){
+try{
+await api("/cashout","POST",{
+operator:document.getElementById("operator").value,
+number:document.getElementById("cashoutNumber").value,
+amount:document.getElementById("cashoutAmount").value,
+pin:document.getElementById("cashoutPin").value
+});
+alert("Cash Out submitted");
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function addWork(){
+try{
+await api("/work","POST",{
+mobile:document.getElementById("workMobile").value,
+amount:document.getElementById("workAmount").value,
+description:document.getElementById("workDescription").value
+});
+alert("Work added successfully");
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function loadWork(){
+try{
+const items=await api("/work");
+document.getElementById("workEntries").innerHTML=items.map(x=>`
+<div class="item">
+<div class="row"><b>${x.customer_name||x.customer}</b><b>+${x.amount} ৳</b></div>
+<div class="muted">${x.description||""} • ${x.date}</div>
+</div>`).join("");
+}catch(e){}
+}
+
+async function loadHistory(){
+try{
+const items=await api("/history");
+document.getElementById("historyList").innerHTML=items.map(x=>`
+<div class="item">
+<div class="row"><b>${x.type}</b><b>${x.amount} ৳</b></div>
+<div>${x.description||""}</div>
+<div class="muted">${x.status} • ${x.date}</div>
+</div>`).join("");
+document.getElementById("recentTransactions").innerHTML=items.slice(0,5).map(x=>`
+<div class="item">
+<div class="row"><b>${x.type}</b><b>${x.amount} ৳</b></div>
+<div class="muted">${x.date}</div>
+</div>`).join("");
+}catch(e){}
+}
+
+async function loadNotifications(){
+try{
+const items=await api("/notifications");
+const unread=items.filter(x=>!x.read).length;
+document.getElementById("notificationCount").textContent=unread||"";
+document.getElementById("notificationList").innerHTML=items.map(x=>`
+<div class="item" onclick="readOne(${x.id})">
+<b>${x.title}</b>
+<div>${x.message}</div>
+<div class="muted">${x.date} ${x.read?"✓":"• Unread"}</div>
+</div>`).join("");
+}catch(e){}
+}
+
+async function readOne(id){
+await api("/notifications/read","POST",{ids:[id]});
+loadNotifications();
+}
+
+async function readAll(){
+await api("/notifications/read","POST",{all:true});
+loadNotifications();
+}
+
+function loadProfile(){
+document.getElementById("profileInfo").innerHTML=`
+<div class="item">Name: ${user.name}</div>
+<div class="item">Mobile: ${user.mobile}</div>
+<div class="item">Role: ${user.role}</div>
+<div class="item">Balance: ${user.balance} ৳</div>`;
+}
+
+async function changePin(){
+alert("PIN change is not yet available in the backend.");
+}
+
+async function loadAdmin(){
+try{
+const users=await api("/admin/users");
+const pending=users.filter(u=>u.status==="pending");
+
+document.getElementById("pendingUsers").innerHTML=pending.map(u=>`
+<div class="item">
+<b>${u.name}</b> (${u.mobile})
+<div class="grid">
+<button class="primary success" onclick="approve(${u.id})">Approve</button>
+<button class="primary danger" onclick="reject(${u.id})">Reject</button>
+</div>
+</div>`).join("")||"No pending users";
+
+document.getElementById("allUsers").innerHTML=users.map(u=>`
+<div class="item">
+<b>${u.name}</b> • ${u.mobile}
+<div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>
+</div>`).join("");
+
+const requests=await api("/admin/cashouts");
+document.getElementById("cashoutRequests").innerHTML=requests.map(r=>`
+<div class="item">
+<b>${r.mobile}</b> • ${r.amount} ৳
+<div class="muted">${r.description} • ${r.status}</div>
+${r.status==="pending"?`
+<div class="grid">
+<button class="primary success" onclick="cashoutDecision(${r.id},'approve')">Approve</button>
+<button class="primary danger" onclick="cashoutDecision(${r.id},'reject')">Reject</button>
+</div>`:""}
+</div>`).join("");
+}catch(e){}
+}
+
+async function approve(id){
+try{await api("/admin/approve/"+id,"POST");refresh()}
+catch(e){alert(e.message)}
+}
+
+async function reject(id){
+const reason=prompt("Rejection reason?");
+if(reason===null)return;
+try{await api("/admin/reject/"+id,"POST",{reason});refresh()}
+catch(e){alert(e.message)}
+}
+
+async function cashoutDecision(id,action){
+try{await api("/admin/cashout/"+id,"POST",{action});refresh()}
+catch(e){alert(e.message)}
+}
+
+async function createAgent(){
+try{
+await api("/admin/create-agent","POST",{
+name:document.getElementById("agentName").value,
+mobile:document.getElementById("agentMobile").value,
+pin:document.getElementById("agentPin").value
+});
+alert("Agent created");
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function manageBalance(action){
+try{
+await api("/admin/balance","POST",{
+mobile:document.getElementById("balanceMobile").value,
+amount:document.getElementById("balanceAmount").value,
+action
+});
+alert("Balance updated");
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function loadOperators(){
+try{
+const operators=await api("/operators");
+document.getElementById("operator").innerHTML=
+'<option value="">Select Operator</option>'+
+operators.map(o=>`<option value="${o.name}">${o.name}</option>`).join("");
+
+if(user.role==="admin"){
+document.getElementById("operatorAdminList").innerHTML=operators.map(o=>`
+<div class="item row">
+${o.name}
+<button class="danger small-btn" onclick="deleteOperator(${o.id})">Delete</button>
+</div>`).join("");
+}
+}catch(e){}
+}
+
+async function addOperator(){
+try{
+await api("/admin/operator","POST",{
+name:document.getElementById("operatorName").value,
+number:document.getElementById("operatorNumber").value
+});
+refresh();
+}catch(e){alert(e.message)}
+}
+
+async function deleteOperator(id){
+try{await api("/admin/operator/"+id+"/delete","POST");refresh()}
+catch(e){alert(e.message)}
+}
+</script>
+</body>
+</html>
