@@ -30,7 +30,9 @@ class Operator(db.Model):
     id=db.Column(db.Integer, primary_key=True); name=db.Column(db.String(100), nullable=False); number=db.Column(db.String(30), default=''); active=db.Column(db.Boolean, default=True)
 
 def notify(uid,title,msg): db.session.add(Notification(user_id=uid,title=title,message=msg))
-def current(): return db.session.get(User, session.get('uid')) if session.get('uid') else None
+def current():
+ u=db.session.get(User, session.get('uid')) if session.get('uid') else None
+ return u if u and u.status=='approved' else None
 def user_json(u): return {'id':u.id,'name':u.name,'mobile':u.mobile,'role':u.role,'status':u.status,'balance':round(u.balance or 0,2)}
 def login_required(fn):
  @wraps(fn)
