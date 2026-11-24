@@ -286,7 +286,12 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 <div id="adminPage" class="page hidden">
 <div class="card">
 <h2>🛡️ Admin Panel</h2>
-
+<div class="grid" style="margin-bottom:18px">
+<button class="primary" onclick="showAdminSection('adminUsersSection')">👥 User Management</button>
+<button class="primary" onclick="showAdminSection('adminPinSection')">🔐 PIN Reset</button>
+<button class="primary" onclick="showAdminSection('adminCashoutSection')">💸 Cash Out Requests</button>
+</div>
+<div id="adminUsersSection">
 <h3>Pending Registrations</h3>
 <div id="pendingUsers"></div>
 
@@ -304,11 +309,17 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 <button class="primary danger" onclick="manageBalance('subtract')">Subtract</button>
 </div>
 
-<h3 style="margin-top:20px">Cash Out Requests</h3>
-<div id="cashoutRequests"></div>
-
-<h3 style="margin-top:20px">All Users</h3>
+</div>
+<div id="adminPinSection" class="hidden">
+<h3>🔐 PIN Reset — Select Account</h3>
+<p class="muted">যে অ্যাকাউন্টের PIN পরিবর্তন করতে চান, তার নতুন ৪ সংখ্যার PIN লিখে Reset করুন।</p>
 <div id="allUsers"></div>
+</div>
+<div id="adminCashoutSection" class="hidden">
+<h3>💸 Cash Out Requests</h3>
+<p class="muted">গ্রাহকদের Cash Out অনুরোধ এখানে আলাদাভাবে দেখানো হবে।</p>
+<div id="cashoutRequests"></div>
+</div>
 
 <h3 style="margin-top:20px">Operators</h3>
 <input id="operatorName" placeholder="Operator Name">
@@ -657,6 +668,10 @@ const nameBox=document.getElementById("workCustomerName");
 if(!mobile){nameBox.textContent="";return}
 try{const c=await api("/customer/"+encodeURIComponent(mobile));nameBox.textContent=(lang==="bn"?"কাস্টমার: ":"Customer: ")+c.name}
 catch(e){nameBox.textContent=e.message}
+}
+
+function showAdminSection(sectionId){
+["adminUsersSection","adminPinSection","adminCashoutSection"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==sectionId));
 }
 
 async function loadAdmin(){
