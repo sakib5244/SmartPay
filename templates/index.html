@@ -73,6 +73,14 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 @keyframes spin{to{transform:rotate(360deg)}}
 .developer-line{font-size:12px;letter-spacing:1px;color:#a9dfff}
 #workCustomerName{background:#edf6ff;color:#174477;font-weight:700}
+#actionOverlay{position:fixed;inset:0;z-index:10000;background:#06132ff2;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:24px}
+#actionOverlay.show{display:flex}
+#actionOverlay .loader-ring{margin-bottom:18px}
+#actionOverlayTitle{font-size:20px;font-weight:700;margin-bottom:8px}
+#actionOverlayText{font-size:14px;color:#c6ddff}
+#cashoutInvoice{border:1px dashed #0d6efd;border-radius:16px;padding:16px;margin-top:16px;background:#f5f9ff;color:#172033}
+#cashoutInvoice pre{white-space:pre-wrap;word-break:break-word;font:14px/1.7 Arial,sans-serif}
+#deleteAccountBtn{margin-top:12px}
 .dark #workCustomerName{background:#172d4a;color:#dcecff}
 
 </style>
@@ -80,6 +88,11 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 
 <body>
 <div id="loadingScreen"><div class="loader-ring"></div><div class="logo">💳 SmartPay</div><div>Loading your secure dashboard...</div><div class="developer-line">Developer: Sakib Hasan Rafi</div></div>
+<div id="actionOverlay" aria-live="polite">
+ <div class="loader-ring"></div>
+ <div id="actionOverlayTitle">অপেক্ষা করুন</div>
+ <div id="actionOverlayText">আপনার অনুরোধ প্রক্রিয়া করা হচ্ছে...</div>
+</div>
 <div class="app">
 
 <!-- AUTH -->
@@ -175,6 +188,11 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 <input id="cashoutPin" type="password" maxlength="4" placeholder="4 Digit PIN">
 <button class="primary" onclick="cashout()">Submit Request</button>
 <div class="muted">Cash out requests require admin approval.</div>
+<div id="cashoutInvoice" class="hidden">
+ <h3 style="text-align:center">💳 SmartPay Cash Out Invoice</h3>
+ <pre id="cashoutInvoiceText"></pre>
+ <button class="secondary" onclick="window.print()">Print Invoice</button>
+</div>
 </div>
 </div>
 
@@ -221,7 +239,8 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 <input id="oldPin" type="password" maxlength="4" placeholder="Current PIN">
 <input id="newPin" type="password" maxlength="4" placeholder="New PIN">
 <button class="primary" onclick="changePin()">Update PIN</button>
-<button class="primary danger" onclick="logout()" style="margin-top:20px">Logout</button>
+<button id="deleteAccountBtn" class="primary danger" onclick="deactivateAccount()">🗑️ Delete Account</button>
+<button class="primary danger" onclick="logout()" style="margin-top:12px">Logout</button>
 </div>
 </div>
 
@@ -358,18 +377,36 @@ showLogin();
 }
 
 async function login(){
+const overlay=document.getElementById("actionOverlay");
+const title=document.getElementById("actionOverlayTitle");
+const message=document.getElementById("actionOverlayText");
+const loginButton=document.querySelector('#loginBox .primary');
+if(loginButton.disabled)return;
+loginButton.disabled=true;
+loginButton.textContent=lang==="bn"?"অপেক্ষা করুন...":"Please wait...";
+title.textContent=lang==="bn"?"লগইন যাচাই করা হচ্ছে":"Verifying login";
+message.textContent=lang==="bn"?"আপনার মোবাইল নম্বর ও PIN যাচাই করা হচ্ছে...":"Verifying your mobile number and PIN...";
+overlay.classList.add("show");
+const started=Date.now();
+let error=null,result=null;
 try{
-const result=await api("/login","POST",{
-mobile:document.getElementById("loginMobile").value,
-pin:document.getElementById("loginPin").value
-});
+ result=await api("/login","POST",{
+  mobile:document.getElementById("loginMobile").value,
+  pin:document.getElementById("loginPin").value
+ });
+}catch(e){error=e}
+const remaining=Math.max(0,15000-(Date.now()-started));
+await new Promise(resolve=>setTimeout(resolve,remaining));
+overlay.classList.remove("show");
+loginButton.disabled=false;
+loginButton.textContent=lang==="bn"?"লগইন":"Login";
+if(error){alert(error.message);return}
 user=result.user;
 document.getElementById("auth").classList.add("hidden");
 document.getElementById("main").classList.remove("hidden");
 document.getElementById("navigation").classList.remove("hidden");
 await refresh();
 openPage("homePage");
-}catch(e){alert(e.message)}
 }
 
 async function logout(){
@@ -430,16 +467,46 @@ refresh();
 }
 
 async function cashout(){
+const button=document.querySelector('#cashoutPage .primary');
+const overlay=document.getElementById("actionOverlay");
+const title=document.getElementById("actionOverlayTitle");
+const message=document.getElementById("actionOverlayText");
+if(button.disabled)return;
+button.disabled=true;
+button.textContent="প্রসেস হচ্ছে...";
 try{
-await api("/cashout","POST",{
-operator:document.getElementById("operator").value,
-number:document.getElementById("cashoutNumber").value,
-amount:document.getElementById("cashoutAmount").value,
-pin:document.getElementById("cashoutPin").value
-});
-alert("Cash Out submitted");
-refresh();
-}catch(e){alert(e.message)}
+ const result=await api("/cashout","POST",{
+  operator:document.getElementById("operator").value,
+  number:document.getElementById("cashoutNumber").value,
+  amount:document.getElementById("cashoutAmount").value,
+  pin:document.getElementById("cashoutPin").value
+ });
+ title.textContent="আপনার Cash Out প্রসেস করা হচ্ছে";
+ message.textContent="অনুগ্রহ করে অপেক্ষা করুন...";
+ overlay.classList.add("show");
+ await new Promise(resolve=>setTimeout(resolve,5000));
+ overlay.classList.remove("show");
+ const x=result.invoice;
+ document.getElementById("cashoutInvoiceText").textContent=
+  "Invoice No: SP-"+x.id+"\n"+
+  "Name: "+x.name+"\n"+
+  "Account: "+x.mobile+"\n"+
+  "Operator: "+x.operator+"\n"+
+  "Cash Out Number: "+x.number+"\n"+
+  "Amount: "+Number(x.amount).toFixed(2)+" ৳\n"+
+  "Date: "+x.date+"\n"+
+  "Status: Pending Admin Approval\n\n"+
+  "আপনার Cash Out অনুরোধটি গ্রহণ করা হয়েছে।";
+ document.getElementById("cashoutInvoice").classList.remove("hidden");
+ document.getElementById("cashoutPin").value="";
+ await refresh();
+}catch(e){
+ overlay.classList.remove("show");
+ alert(e.message);
+}finally{
+ button.disabled=false;
+ button.textContent="Submit Request";
+}
 }
 
 async function addWork(){
@@ -513,6 +580,9 @@ document.getElementById("profileInfo").innerHTML=`
 <div class="item">Mobile: ${user.mobile}</div>
 <div class="item">Role: ${user.role}</div>
 <div class="item">Balance: ${user.balance} ৳</div>`;
+const deleteButton=document.getElementById("deleteAccountBtn");
+deleteButton.classList.toggle("hidden",user.role==="admin");
+deleteButton.textContent=lang==="bn"?"🗑️ অ্যাকাউন্ট ডিলিট":"🗑️ Delete Account";
 }
 
 async function changePin(){
