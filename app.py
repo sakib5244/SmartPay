@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, request, jsonify, session, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -91,6 +91,17 @@ def pin_change():
  new=str(d.get('new',''))
  if len(new)!=4 or not new.isdigit():return jsonify(error='PIN must be 4 digits'),400
  u.pin_hash=generate_password_hash(new);db.session.commit();return jsonify(message='PIN changed')
+@app.post('/api/account/delete')
+@login_required
+def deactivate_account():
+ d=request.get_json(silent=True) or {};u=current()
+ if u.role=='admin': return jsonify(error='Admin account cannot be deactivated here'),403
+ if not check_password_hash(u.pin_hash,str(d.get('pin',''))): return jsonify(error='Incorrect PIN'),401
+ u.status='deactivated'
+ notify(u.id,'অ্যাকাউন্ট নিষ্ক্রিয়','আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে। সহায়তার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।')
+ db.session.commit();session.clear()
+ return jsonify(message='অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে')
+
 @app.get('/api/notifications')
 @login_required
 def notifications():
@@ -193,7 +204,7 @@ def add_work():
  d=request.get_json(silent=True) or {};c=User.query.filter_by(mobile=str(d.get('mobile','')).strip(),role='customer',status='approved').first();v=d.get('amount')
  if not c:return jsonify(error='Approved customer not found'),404
  if not amount_ok(v):return jsonify(error='Invalid amount'),400
- v=float(v);c.balance+=v;w=WorkEntry(agent_id=current().id,customer_id=c.id,amount=v,description=str(d.get('description','')),week=datetime.utcnow().strftime('%G-W%V'));db.session.add(w);db.session.add(Transaction(user_id=c.id,actor_id=current().id,type='work',amount=v,description='Work List Credit'));notify(c.id,'Work Payment',f'{v} added');db.session.commit();return jsonify(message='Work added')
+ v=float(v);c.balance+=v;w=WorkEntry(agent_id=current().id,customer_id=c.id,amount=v,description=str(d.get('description','')),week=datetime.utcnow().strftime('%G-W%V'));db.session.add(w);db.session.add(Transaction(user_id=c.id,actor_id=current().id,type='work',amount=v,description='Work List Credit'));notify(c.id,'নতুন কাজ যুক্ত হয়েছে',f'আপনার জন্য {v:.2f} টাকা পরিমাণের নতুন কাজ যুক্ত হয়েছে। বিস্তারিত জানতে আপনার Work List দেখুন।');db.session.commit();return jsonify(message='কাজ সফলভাবে যুক্ত হয়েছে।')
 @app.get('/api/history')
 @login_required
 def history():
