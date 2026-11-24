@@ -127,6 +127,33 @@ def approve(uid):
  u=db.session.get(User,uid)
  if not u:return jsonify(error='User not found'),404
  u.status='approved';notify(u.id,'Account Approved','Your SmartPay account is approved.');db.session.commit();return jsonify(message='Approved')
+@app.post('/api/admin/pin-reset/<int:uid>')
+@roles('admin')
+def admin_pin_reset(uid):
+ d=request.get_json(silent=True) or {};u=db.session.get(User,uid);new=str(d.get('pin',''))
+ if not u:return jsonify(error='User not found'),404
+ if len(new)!=4 or not new.isdigit():return jsonify(error='PIN must be 4 digits'),400
+ u.pin_hash=generate_password_hash(new)
+ notify(u.id,'PIN Reset','অ্যাডমিন আপনার অ্যাকাউন্টের PIN রিসেট করেছেন।')
+ db.session.commit()
+ return jsonify(message='PIN reset successful')
+
+@app.get('/api/transaction/<int:tid>')
+@login_required
+def transaction_invoice(tid):
+ u=current();t=db.session.get(Transaction,tid)
+ if not t:return jsonify(error='Transaction not found'),404
+ if u.role!='admin' and t.user_id!=u.id:return jsonify(error='Permission denied'),403
+ owner=db.session.get(User,t.user_id)
+ description=t.description or ''
+ parts=description.split(' | ',1)
+ return jsonify(invoice={'id':t.id,'name':owner.name if owner else '',
+  'mobile':owner.mobile if owner else '', 'type':t.type,'amount':round(t.amount,2),
+  'status':t.status,'description':description,
+  'operator':parts[0] if t.type=='cashout' and len(parts)>1 else '',
+  'number':parts[1] if t.type=='cashout' and len(parts)>1 else '',
+  'date':t.created_at.strftime('%Y-%m-%d %H:%M:%S')})
+
 @app.post('/api/admin/reactivate/<int:uid>')
 @roles('admin')
 def reactivate(uid):
@@ -188,7 +215,7 @@ def cashout():
 def admin_cashouts():
  out=[]
  for t in Transaction.query.filter_by(type='cashout').order_by(Transaction.id.desc()).all():
-  u=db.session.get(User,t.user_id);out.append({'id':t.id,'mobile':u.mobile if u else '', 'name':u.name if u else '', 'amount':t.amount,'status':t.status,'description':t.description,'date':t.created_at.strftime('%Y-%m-%d %H:%M')})
+  u=db.session.get(User,t.user_id);parts=(t.description or '').split(' | ',1);out.append({'id':t.id,'mobile':u.mobile if u else '', 'name':u.name if u else '', 'amount':t.amount,'status':t.status,'description':t.description,'operator':parts[0] if len(parts)>1 else '', 'number':parts[1] if len(parts)>1 else '', 'date':t.created_at.strftime('%Y-%m-%d %H:%M')})
  return jsonify(out)
 @app.post('/api/admin/cashout/<int:tid>')
 @roles('admin')
