@@ -56,10 +56,30 @@ box-shadow:0 -3px 15px #00000012
 .nav button.active{color:#0d6efd;font-weight:bold}
 .hidden{display:none!important}
 .center{text-align:center}
+
+/* SmartPay premium refresh */
+body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),linear-gradient(135deg,#f7faff,#edf4ff);font-family:Inter,system-ui,Arial,sans-serif}
+.header{background:linear-gradient(120deg,#071b49,#0759d5 55%,#12a7ff);box-shadow:0 12px 35px #0759d533;position:relative;overflow:hidden}
+.header:after{content:"";position:absolute;inset:auto -30% -90% -30%;height:160px;background:linear-gradient(90deg,transparent,#48d7ff88,transparent);filter:blur(22px);animation:glow 5s linear infinite}
+@keyframes glow{0%{transform:translateX(-40%)}100%{transform:translateX(40%)}}
+.card{border:1px solid #dce9ff;box-shadow:0 12px 35px #1b4b8c12;border-radius:22px}
+.action{border:1px solid #cfe1ff;background:linear-gradient(145deg,#fff,#eaf3ff);box-shadow:0 7px 20px #2563eb12;transition:transform .2s,box-shadow .2s}
+.action:hover{transform:translateY(-3px);box-shadow:0 12px 26px #2563eb22}
+.primary{background:linear-gradient(110deg,#0759d5,#078bfa);box-shadow:0 8px 20px #0759d533}
+.nav{border-top:1px solid #dce8fa;backdrop-filter:blur(16px)}
+#loadingScreen{position:fixed;z-index:9999;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:radial-gradient(circle at 50% 40%,#123d82,#06132f 70%);color:white;transition:opacity .45s,visibility .45s}
+#loadingScreen.done{opacity:0;visibility:hidden}
+.loader-ring{width:58px;height:58px;border:4px solid #ffffff30;border-top-color:#43d7ff;border-right-color:#477cff;border-radius:50%;animation:spin .8s linear infinite;box-shadow:0 0 24px #24a8ff88}
+@keyframes spin{to{transform:rotate(360deg)}}
+.developer-line{font-size:12px;letter-spacing:1px;color:#a9dfff}
+#workCustomerName{background:#edf6ff;color:#174477;font-weight:700}
+.dark #workCustomerName{background:#172d4a;color:#dcecff}
+
 </style>
 </head>
 
 <body>
+<div id="loadingScreen"><div class="loader-ring"></div><div class="logo">💳 SmartPay</div><div>Loading your secure dashboard...</div><div class="developer-line">Developer: Sakib Hasan Rafi</div></div>
 <div class="app">
 
 <!-- AUTH -->
@@ -163,7 +183,8 @@ box-shadow:0 -3px 15px #00000012
 <div class="card">
 <h2>📋 Work List</h2>
 <div id="workForm" class="hidden">
-<input id="workMobile" placeholder="Customer Mobile">
+<input id="workMobile" placeholder="Customer Account Number" onblur="lookupWorkCustomer()">
+<div id="workCustomerName" class="item muted">Customer name will appear here</div>
 <input id="workAmount" type="number" placeholder="Amount">
 <input id="workDescription" placeholder="Description">
 <button class="primary" onclick="addWork()">Add Work</button>
@@ -303,6 +324,7 @@ document.getElementById("cashinAction").innerHTML="💰 "+T("cashin");
 }
 
 renderLanguage();
+window.addEventListener("load",()=>setTimeout(()=>document.getElementById("loadingScreen").classList.add("done"),900));
 
 async function api(url,method="GET",data=null){
 const options={method,headers:{"Content-Type":"application/json"}};
@@ -427,7 +449,8 @@ mobile:document.getElementById("workMobile").value,
 amount:document.getElementById("workAmount").value,
 description:document.getElementById("workDescription").value
 });
-alert("Work added successfully");
+alert(lang==="bn"?"কাজ সফলভাবে যুক্ত হয়েছে":"Work added successfully");
+document.getElementById("workCustomerName").textContent="";
 refresh();
 }catch(e){alert(e.message)}
 }
@@ -493,7 +516,27 @@ document.getElementById("profileInfo").innerHTML=`
 }
 
 async function changePin(){
-alert("PIN change is not yet available in the backend.");
+try{
+await api("/pin","POST",{old:document.getElementById("oldPin").value,new:document.getElementById("newPin").value});
+document.getElementById("oldPin").value="";document.getElementById("newPin").value="";
+alert(lang==="bn"?"PIN পরিবর্তন হয়েছে":"PIN changed successfully");
+}catch(e){alert(e.message)}
+}
+
+async function deactivateAccount(){
+if(!confirm(lang==="bn"?"আপনি কি অ্যাকাউন্ট নিষ্ক্রিয় করতে চান? আপনার লেনদেনের ইতিহাস সংরক্ষিত থাকবে।":"Deactivate your account? Your transaction history will be retained."))return;
+const pin=prompt(lang==="bn"?"নিশ্চিত করতে PIN দিন":"Enter your PIN to confirm");
+if(pin===null)return;
+try{await api("/account/delete","POST",{pin});alert(lang==="bn"?"অ্যাকাউন্ট নিষ্ক্রিয় হয়েছে":"Account deactivated");await logout()}
+catch(e){alert(e.message)}
+}
+
+async function lookupWorkCustomer(){
+const mobile=document.getElementById("workMobile").value.trim();
+const nameBox=document.getElementById("workCustomerName");
+if(!mobile){nameBox.textContent="";return}
+try{const c=await api("/customer/"+encodeURIComponent(mobile));nameBox.textContent=(lang==="bn"?"কাস্টমার: ":"Customer: ")+c.name}
+catch(e){nameBox.textContent=e.message}
 }
 
 async function loadAdmin(){
