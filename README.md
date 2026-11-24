@@ -13,9 +13,6 @@ Environment variables: `DATABASE_URL` (Postgres Internal URL), `SECRET_KEY` (ran
 
 The database URL is normalized to `postgresql+psycopg2://` to use the installed `psycopg2-binary` driver and avoid `ModuleNotFoundError: psycopg`.
 
-Demo accounts (change/remove before production):
-- Admin: `admin` / `1234`
-- Agent: `01700000001` / `1111`
-- Customer: `01700000002` / `2222`
+Demo account credentials are intentionally not documented in this public repository. Rotate any previously used demo PINs immediately before production use.
 
 Demo only. No real payment processing. Review security, permissions, and business rules before production use.
