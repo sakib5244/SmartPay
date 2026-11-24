@@ -198,12 +198,22 @@ def get_work():
  for w in q.order_by(WorkEntry.id.desc()).all():
   c=db.session.get(User,w.customer_id);a=db.session.get(User,w.agent_id);out.append({'id':w.id,'agent':a.mobile if a else '', 'customer':c.mobile if c else '', 'customer_name':c.name if c else '', 'amount':w.amount,'description':w.description,'week':w.week,'date':w.created_at.strftime('%Y-%m-%d')})
  return jsonify(out)
+@app.get('/api/customer/<mobile>')
+@roles('agent')
+def lookup_customer(mobile):
+ c=User.query.filter_by(mobile=str(mobile).strip(),role='customer',status='approved').first()
+ if not c:return jsonify(error='অনুমোদিত কাস্টমার পাওয়া যায়নি'),404
+ return jsonify(id=c.id,name=c.name,mobile=c.mobile)
+
 @app.post('/api/work')
 @roles('agent')
 def add_work():
  d=request.get_json(silent=True) or {};c=User.query.filter_by(mobile=str(d.get('mobile','')).strip(),role='customer',status='approved').first();v=d.get('amount')
  if not c:return jsonify(error='Approved customer not found'),404
  if not amount_ok(v):return jsonify(error='Invalid amount'),400
+ cutoff=datetime.utcnow()-timedelta(hours=12)
+ recent=WorkEntry.query.filter(WorkEntry.customer_id==c.id,WorkEntry.created_at>=cutoff).first()
+ if recent:return jsonify(error='এই অ্যাকাউন্টে সর্বশেষ কাজ দেওয়ার ১২ ঘণ্টা পূর্ণ হয়নি।'),429
  v=float(v);c.balance+=v;w=WorkEntry(agent_id=current().id,customer_id=c.id,amount=v,description=str(d.get('description','')),week=datetime.utcnow().strftime('%G-W%V'));db.session.add(w);db.session.add(Transaction(user_id=c.id,actor_id=current().id,type='work',amount=v,description='Work List Credit'));notify(c.id,'নতুন কাজ যুক্ত হয়েছে',f'আপনার জন্য {v:.2f} টাকা পরিমাণের নতুন কাজ যুক্ত হয়েছে। বিস্তারিত জানতে আপনার Work List দেখুন।');db.session.commit();return jsonify(message='কাজ সফলভাবে যুক্ত হয়েছে।')
 @app.get('/api/history')
 @login_required
