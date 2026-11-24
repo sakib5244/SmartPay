@@ -215,7 +215,7 @@ def cashout():
 def admin_cashouts():
  out=[]
  for t in Transaction.query.filter_by(type='cashout').order_by(Transaction.id.desc()).all():
-  u=db.session.get(User,t.user_id);out.append({'id':t.id,'mobile':u.mobile if u else '', 'name':u.name if u else '', 'amount':t.amount,'status':t.status,'description':t.description,'date':t.created_at.strftime('%Y-%m-%d %H:%M')})
+  u=db.session.get(User,t.user_id);parts=(t.description or '').split(' | ',1);out.append({'id':t.id,'mobile':u.mobile if u else '', 'name':u.name if u else '', 'amount':t.amount,'status':t.status,'description':t.description,'operator':parts[0] if len(parts)>1 else '', 'number':parts[1] if len(parts)>1 else '', 'date':t.created_at.strftime('%Y-%m-%d %H:%M')})
  return jsonify(out)
 @app.post('/api/admin/cashout/<int:tid>')
 @roles('admin')
