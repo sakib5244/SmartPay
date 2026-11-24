@@ -16,7 +16,7 @@ transition:.2s
 body.dark{background:#111827;color:#f3f4f6}
 button,input,select{font:inherit}
 button{cursor:pointer;border:0}
-.app{max-width:480px;margin:auto;min-height:100vh;padding-bottom:80px}
+.app{width:100%;max-width:480px;margin:auto;min-height:100vh;padding-bottom:80px}
 .header{
 background:#0d6efd;color:white;padding:20px;
 border-radius:0 0 24px 24px
@@ -73,6 +73,9 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 @keyframes spin{to{transform:rotate(360deg)}}
 .developer-line{font-size:12px;letter-spacing:1px;color:#a9dfff}
 #workCustomerName{background:#edf6ff;color:#174477;font-weight:700}
+#pageLoadingOverlay{position:fixed;inset:0;z-index:9999;background:#06132ff2;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:#fff;text-align:center;padding:24px}
+#pageLoadingOverlay.show{display:flex}
+#pageLoadingText{font-size:17px;font-weight:700}
 #actionOverlay{position:fixed;inset:0;z-index:10000;background:#06132ff2;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:24px}
 #actionOverlay.show{display:flex}
 #actionOverlay .loader-ring{margin-bottom:18px}
@@ -83,6 +86,23 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 #deleteAccountBtn{margin-top:12px}
 .dark #workCustomerName{background:#172d4a;color:#dcecff}
 
+
+/* Responsive phone, tablet and desktop layouts */
+@media (min-width: 768px){
+ .app{max-width:1200px;padding:24px 28px 110px}
+ .header{border-radius:24px;margin-bottom:22px;padding:28px 32px}
+ .page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+ .page.hidden{display:none!important}
+ .page>.card{margin:0;min-width:0}
+ .nav{max-width:1200px;border-radius:18px 18px 0 0;padding:14px 24px}
+ .nav button{font-size:14px;min-width:100px}
+ #homePage>.card:first-child{grid-column:1/-1}
+ #adminPage>.card{grid-column:1/-1}
+}
+@media (min-width: 1200px){
+ .app{max-width:1400px;padding-left:36px;padding-right:36px}
+ .nav{max-width:1400px}
+}
 </style>
 </head>
 
@@ -92,6 +112,10 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
  <div class="loader-ring"></div>
  <div id="actionOverlayTitle">অপেক্ষা করুন</div>
  <div id="actionOverlayText">আপনার অনুরোধ প্রক্রিয়া করা হচ্ছে...</div>
+</div>
+<div id="pageLoadingOverlay" aria-live="polite">
+ <div class="loader-ring"></div>
+ <div id="pageLoadingText">পৃষ্ঠা লোড হচ্ছে...</div>
 </div>
 <div class="app">
 
@@ -343,7 +367,7 @@ document.getElementById("cashinAction").innerHTML="💰 "+T("cashin");
 }
 
 renderLanguage();
-window.addEventListener("load",()=>setTimeout(()=>document.getElementById("loadingScreen").classList.add("done"),900));
+window.addEventListener("load",()=>setTimeout(()=>document.getElementById("loadingScreen").classList.add("done"),5000));
 
 async function api(url,method="GET",data=null){
 const options={method,headers:{"Content-Type":"application/json"}};
@@ -418,7 +442,14 @@ document.getElementById("auth").classList.remove("hidden");
 showLogin();
 }
 
-function openPage(page){
+let pageLoadingBusy=false;
+async function openPage(page){
+if(pageLoadingBusy)return;
+pageLoadingBusy=true;
+const pageOverlay=document.getElementById("pageLoadingOverlay");
+document.getElementById("pageLoadingText").textContent=lang==="bn"?"পৃষ্ঠা লোড হচ্ছে...":"Loading page...";
+pageOverlay.classList.add("show");
+await new Promise(resolve=>setTimeout(resolve,5000));
 document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
 document.getElementById("homePage").classList.add("hidden");
 document.getElementById(page).classList.remove("hidden");
@@ -429,6 +460,8 @@ if(page==="historyPage")document.getElementById("navHistory").classList.add("act
 if(page==="notificationPage")document.getElementById("navNotifications").classList.add("active");
 if(page==="profilePage")document.getElementById("navProfile").classList.add("active");
 
+pageOverlay.classList.remove("show");
+pageLoadingBusy=false;
 refresh();
 }
 
@@ -627,6 +660,7 @@ document.getElementById("allUsers").innerHTML=users.map(u=>`
 <div class="item">
 <b>${u.name}</b> • ${u.mobile}
 <div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>
+${u.status==="deactivated"?`<button class="primary success" onclick="reactivateUser(${u.id})">Reactivate Account</button>`: ""}
 </div>`).join("");
 
 const requests=await api("/admin/cashouts");
@@ -647,6 +681,13 @@ async function approve(id){
 try{await api("/admin/approve/"+id,"POST");refresh()}
 catch(e){alert(e.message)}
 }
+
+async function reactivateUser(id){
+if(!confirm(lang==="bn"?"এই অ্যাকাউন্টটি আবার চালু করবেন?":"Reactivate this account?"))return;
+try{await api("/admin/reactivate/"+id,"POST");alert(lang==="bn"?"অ্যাকাউন্ট আবার চালু হয়েছে":"Account reactivated");refresh()}
+catch(e){alert(e.message)}
+}
+
 
 async function reject(id){
 const reason=prompt("Rejection reason?");

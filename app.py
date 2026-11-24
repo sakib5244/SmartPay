@@ -127,6 +127,17 @@ def approve(uid):
  u=db.session.get(User,uid)
  if not u:return jsonify(error='User not found'),404
  u.status='approved';notify(u.id,'Account Approved','Your SmartPay account is approved.');db.session.commit();return jsonify(message='Approved')
+@app.post('/api/admin/reactivate/<int:uid>')
+@roles('admin')
+def reactivate(uid):
+ u=db.session.get(User,uid)
+ if not u:return jsonify(error='User not found'),404
+ if u.status!='deactivated':return jsonify(error='Only deactivated accounts can be reactivated'),400
+ u.status='approved'
+ notify(u.id,'অ্যাকাউন্ট পুনরায় চালু','অ্যাডমিন আপনার অ্যাকাউন্ট পুনরায় চালু করেছেন। এখন লগইন করতে পারবেন।')
+ db.session.commit()
+ return jsonify(message='Account reactivated')
+
 @app.post('/api/admin/reject/<int:uid>')
 @roles('admin')
 def reject(uid):
