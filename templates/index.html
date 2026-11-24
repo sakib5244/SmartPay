@@ -441,6 +441,7 @@ loginButton.textContent=lang==="bn"?"লগইন":"Login";
 const loginResult=document.getElementById("loginResult");loginResult.classList.remove("hidden","ok","bad");
 if(error){loginResult.classList.add("bad");loginResult.textContent="লগইন সফল হয়নি। "+error.message;return}
 loginResult.classList.add("ok");loginResult.textContent="লগইন সফল হয়েছে";
+await new Promise(resolve=>setTimeout(resolve,900));
 user=result.user;
 document.getElementById("auth").classList.add("hidden");
 document.getElementById("main").classList.remove("hidden");
