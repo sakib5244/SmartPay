@@ -586,10 +586,10 @@ async function loadHistory(){
 try{
 const items=await api("/history");
 document.getElementById("historyList").innerHTML=items.map(x=>`
-<div class="item">
+<div class="item invoice-click" onclick="showTransactionInvoice(${x.id})">
 <div class="row"><b>${x.type}</b><b>${x.amount} ৳</b></div>
 <div>${x.description||""}</div>
-<div class="muted">${x.status} • ${x.date}</div>
+<div class="muted">${x.status} • ${x.date}</div><div class="muted">ইনভয়েস দেখতে এখানে ক্লিক করুন</div>
 </div>`).join("");
 document.getElementById("recentTransactions").innerHTML=items.slice(0,5).map(x=>`
 <div class="item">
