@@ -614,7 +614,10 @@ document.getElementById("notificationList").innerHTML=items.map(x=>`
 }
 
 async function showTransactionInvoice(id){try{const r=await api("/transaction/"+id);const x=r.invoice;document.getElementById("invoiceModalText").textContent="Invoice No: SP-"+x.id+"\nName: "+x.name+"\nMobile: "+x.mobile+"\nTransaction: "+x.type+"\nAmount: "+Number(x.amount).toFixed(2)+" ৳"+(x.operator?"\nOperator: "+x.operator:"")+(x.number?"\nCash Out Number: "+x.number:"")+"\nDescription: "+x.description+"\nStatus: "+x.status+"\nDate: "+x.date;document.getElementById("invoiceModal").classList.remove("hidden")}catch(e){alert(e.message)}}
-function closeInvoice(){document.getElementById("invoiceModal").classList.add("hidden")}\nasync function copyCashoutNumber(btn){const v=btn.dataset.num;try{await navigator.clipboard.writeText(v);alert("Number copied")}catch(e){alert("Copy failed")}}\nasync function resetUserPin(id){const field=document.getElementById("resetPin"+id);try{await api("/admin/pin-reset/"+id,"POST",{pin:field.value});field.value="";alert("PIN reset successful")}catch(e){alert(e.message)}}\nasync function readOne(id){
+function closeInvoice(){document.getElementById("invoiceModal").classList.add("hidden")}
+async function copyCashoutNumber(btn){const v=btn.dataset.num;try{await navigator.clipboard.writeText(v);alert("Number copied")}catch(e){alert("Copy failed")}}
+async function resetUserPin(id){const field=document.getElementById("resetPin"+id);try{await api("/admin/pin-reset/"+id,"POST",{pin:field.value});field.value="";alert("PIN reset successful")}catch(e){alert(e.message)}}
+async function readOne(id){
 await api("/notifications/read","POST",{ids:[id]});
 loadNotifications();
 }
