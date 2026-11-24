@@ -89,19 +89,27 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 
 /* Responsive phone, tablet and desktop layouts */
 @media (min-width: 768px){
- .app{max-width:1200px;padding:24px 28px 110px}
+ .app{max-width:none;width:calc(100% - 190px);margin-left:190px;padding:24px 28px 40px}
  .header{border-radius:24px;margin-bottom:22px;padding:28px 32px}
  .page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
  .page.hidden{display:none!important}
  .page>.card{margin:0;min-width:0}
- .nav{max-width:1200px;border-radius:18px 18px 0 0;padding:14px 24px}
- .nav button{font-size:14px;min-width:100px}
+ .nav{position:fixed;top:0;bottom:0;left:0;right:auto;width:190px;max-width:none;margin:0;border-radius:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;padding:28px 12px;box-shadow:4px 0 18px #00000012;z-index:1000}
+ .nav button{font-size:15px;text-align:left;padding:14px 12px;border-radius:12px;min-height:48px}
  #homePage>.card:first-child{grid-column:1/-1}
  #adminPage>.card{grid-column:1/-1}
 }
 @media (min-width: 1200px){
- .app{max-width:1400px;padding-left:36px;padding-right:36px}
- .nav{max-width:1400px}
+ .app{max-width:none;width:calc(100% - 210px);margin-left:210px;padding-left:36px;padding-right:36px}
+ .nav{width:210px}
+}
+@media (max-width: 767px){
+ .app{width:calc(100% - 76px);max-width:none;margin-left:76px;padding:12px 8px 24px}
+ .header{padding:16px 12px;border-radius:0 0 18px 18px}
+ .nav{position:fixed;top:0;bottom:0;left:0;right:auto;width:76px;max-width:none;margin:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px;padding:14px 5px;border-radius:0;z-index:1000}
+ .nav button{font-size:10px;line-height:1.35;text-align:center;padding:10px 2px;min-height:54px;overflow-wrap:anywhere}
+ .card{margin:8px;padding:12px;border-radius:16px}
+ .page{display:block}
 }
 </style>
 </head>
@@ -419,12 +427,13 @@ try{
   pin:document.getElementById("loginPin").value
  });
 }catch(e){error=e}
-const remaining=Math.max(0,15000-(Date.now()-started));
+const remaining=Math.max(0,2000-(Date.now()-started));
 await new Promise(resolve=>setTimeout(resolve,remaining));
 overlay.classList.remove("show");
 loginButton.disabled=false;
 loginButton.textContent=lang==="bn"?"লগইন":"Login";
-if(error){alert(error.message);return}
+if(error){alert("লগইন সফল হয়নি। "+error.message);return}
+alert("লগইন সফল হয়েছে");
 user=result.user;
 document.getElementById("auth").classList.add("hidden");
 document.getElementById("main").classList.remove("hidden");
@@ -449,7 +458,7 @@ pageLoadingBusy=true;
 const pageOverlay=document.getElementById("pageLoadingOverlay");
 document.getElementById("pageLoadingText").textContent=lang==="bn"?"পৃষ্ঠা লোড হচ্ছে...":"Loading page...";
 pageOverlay.classList.add("show");
-await new Promise(resolve=>setTimeout(resolve,5000));
+await new Promise(resolve=>setTimeout(resolve,1000));
 document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
 document.getElementById("homePage").classList.add("hidden");
 document.getElementById(page).classList.remove("hidden");
