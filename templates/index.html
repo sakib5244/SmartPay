@@ -675,7 +675,8 @@ document.getElementById("pendingUsers").innerHTML=pending.map(u=>`
 document.getElementById("allUsers").innerHTML=users.map(u=>`
 <div class="item">
 <b>${u.name}</b> • ${u.mobile}
-<div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>\n<div class="row" style="margin-top:8px"><input id="resetPin${u.id}" type="password" maxlength="4" placeholder="New 4-digit PIN" style="margin:0"><button class="copy-btn" onclick="resetUserPin(${u.id})">PIN Reset</button></div>
+<div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>
+<div class="row" style="margin-top:8px"><input id="resetPin${u.id}" type="password" maxlength="4" placeholder="New 4-digit PIN" style="margin:0"><button class="copy-btn" onclick="resetUserPin(${u.id})">PIN Reset</button></div>
 ${u.status==="deactivated"?`<button class="primary success" onclick="reactivateUser(${u.id})">Reactivate Account</button>`: ""}
 </div>`).join("");
 
@@ -683,7 +684,8 @@ const requests=await api("/admin/cashouts");
 document.getElementById("cashoutRequests").innerHTML=requests.map(r=>`
 <div class="item">
 <b>${r.mobile}</b> • ${r.amount} ৳
-<div class="muted">${r.description} • ${r.status}</div>\n<div class="row"><span>Cash Out Number: <b>${r.number||"N/A"}</b></span><button class="copy-btn" data-num="${r.number||""}" onclick="event.stopPropagation();copyCashoutNumber(this)">Copy</button></div>
+<div class="muted">${r.description} • ${r.status}</div>
+<div class="row"><span>Cash Out Number: <b>${r.number||"N/A"}</b></span><button class="copy-btn" data-num="${r.number||""}" onclick="event.stopPropagation();copyCashoutNumber(this)">Copy</button></div>
 ${r.status==="pending"?`
 <div class="grid">
 <button class="primary success" onclick="cashoutDecision(${r.id},'approve')">Approve</button>
