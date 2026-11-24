@@ -613,7 +613,7 @@ document.getElementById("notificationList").innerHTML=items.map(x=>`
 }catch(e){}
 }
 
-async function readOne(id){
+async function showTransactionInvoice(id){try{const r=await api("/transaction/"+id);const x=r.invoice;document.getElementById("invoiceModalText").textContent="Invoice No: SP-"+x.id+"\\nName: "+x.name+"\\nMobile: "+x.mobile+"\\nTransaction: "+x.type+"\\nAmount: "+Number(x.amount).toFixed(2)+" ৳"+(x.operator?"\\nOperator: "+x.operator:"")+(x.number?"\\nCash Out Number: "+x.number:"")+"\\nDescription: "+x.description+"\\nStatus: "+x.status+"\\nDate: "+x.date;document.getElementById("invoiceModal").classList.remove("hidden")}catch(e){alert(e.message)}}\nfunction closeInvoice(){document.getElementById("invoiceModal").classList.add("hidden")}\nasync function copyCashoutNumber(btn){const v=btn.dataset.num;try{await navigator.clipboard.writeText(v);alert("Number copied")}catch(e){alert("Copy failed")}}\nasync function resetUserPin(id){const field=document.getElementById("resetPin"+id);try{await api("/admin/pin-reset/"+id,"POST",{pin:field.value});field.value="";alert("PIN reset successful")}catch(e){alert(e.message)}}\nasync function readOne(id){
 await api("/notifications/read","POST",{ids:[id]});
 loadNotifications();
 }
@@ -671,7 +671,7 @@ document.getElementById("pendingUsers").innerHTML=pending.map(u=>`
 document.getElementById("allUsers").innerHTML=users.map(u=>`
 <div class="item">
 <b>${u.name}</b> • ${u.mobile}
-<div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>
+<div class="muted">${u.role} | ${u.status} | ${u.balance} ৳</div>\n<div class="row" style="margin-top:8px"><input id="resetPin${u.id}" type="password" maxlength="4" placeholder="New 4-digit PIN" style="margin:0"><button class="copy-btn" onclick="resetUserPin(${u.id})">PIN Reset</button></div>
 ${u.status==="deactivated"?`<button class="primary success" onclick="reactivateUser(${u.id})">Reactivate Account</button>`: ""}
 </div>`).join("");
 
@@ -679,7 +679,7 @@ const requests=await api("/admin/cashouts");
 document.getElementById("cashoutRequests").innerHTML=requests.map(r=>`
 <div class="item">
 <b>${r.mobile}</b> • ${r.amount} ৳
-<div class="muted">${r.description} • ${r.status}</div>
+<div class="muted">${r.description} • ${r.status}</div>\n<div class="row"><span>Cash Out Number: <b>${r.number||"N/A"}</b></span><button class="copy-btn" data-num="${r.number||""}" onclick="event.stopPropagation();copyCashoutNumber(this)">Copy</button></div>
 ${r.status==="pending"?`
 <div class="grid">
 <button class="primary success" onclick="cashoutDecision(${r.id},'approve')">Approve</button>
