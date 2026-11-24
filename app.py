@@ -171,7 +171,7 @@ def cashout():
  if u.balance<v:return jsonify(error='Insufficient balance'),400
  u.balance-=v;t=Transaction(user_id=u.id,actor_id=u.id,type='cashout',amount=v,status='pending',description=f"{d.get('operator','')} | {d.get('number','')}");db.session.add(t);db.session.flush()
  for a in User.query.filter_by(role='admin'):notify(a.id,'Cash Out Request',f'{u.mobile} requested {v}')
- notify(u.id,'Cash Out Pending','Request submitted');db.session.commit();return jsonify(message='Cash Out request submitted')
+ notify(u.id,'Cash Out Pending','Request submitted');db.session.commit();return jsonify(message='Cash Out request submitted',invoice={'id':t.id,'amount':round(v,2),'operator':str(d.get('operator','')),'number':str(d.get('number','')),'date':t.created_at.strftime('%Y-%m-%d %H:%M:%S'),'status':t.status,'mobile':u.mobile,'name':u.name})
 @app.get('/api/admin/cashouts')
 @roles('admin')
 def admin_cashouts():
