@@ -468,7 +468,7 @@ document.getElementById("loginTitle").textContent=T("login");
 document.getElementById("registerTitle").textContent=T("register");
 document.getElementById("balanceTitle").textContent=T("balance");
 document.getElementById("quickTitle").textContent=T("quick");
-document.getElementById("recentTitle").textContent=T("recent");
+const recentTitle=document.getElementById("recentTitle");if(recentTitle)recentTitle.textContent=T("recent");
 document.getElementById("navHome").innerHTML="🏠<br>"+T("home");
 document.getElementById("navHistory").innerHTML="📜<br>"+T("history");
 document.getElementById("navProfile").innerHTML="👤<br>"+T("profile");
