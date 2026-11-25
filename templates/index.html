@@ -180,6 +180,16 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
  #navigation.nav button{font-size:10px}
 }
 
+
+/* Login page Bengali introduction and right-to-left animated underline */
+.login-brand-line{display:inline-block;position:relative;padding-bottom:12px;margin-bottom:8px}
+.login-brand-line::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;border-radius:5px;background:linear-gradient(90deg,transparent,#63e5ff,#ffe28a,#63e5ff);transform:scaleX(0);transform-origin:right;animation:loginUnderlineRTL 2.6s ease-in-out infinite}
+@keyframes loginUnderlineRTL{0%{transform:scaleX(0);transform-origin:right}48%,100%{transform:scaleX(1);transform-origin:right}}
+.login-about-bn{max-width:620px;margin:4px auto 0;padding:0 12px;text-align:center}
+.login-about-bn p{margin:0;color:#e4f1ff;font-size:13px;line-height:1.9;font-weight:500}
+.login-about-rule{display:block;width:44px;height:3px;border-radius:4px;margin:0 auto 10px;background:linear-gradient(90deg,#65e5ff,#ffe28a);opacity:.95}
+@media(max-width:480px){.login-about-bn p{font-size:12px;line-height:1.8}.login-brand-line{font-size:15px}}
+
 </style>
 </head>
 
@@ -210,6 +220,10 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 </div>
 <h2 id="welcome" style="margin-top:25px">Welcome to SmartPay</h2>
 <p class="login-brand-line">SmartPay Online Digital Payment</p>
+<div class="login-about-bn">
+  <span class="login-about-rule" aria-hidden="true"></span>
+  <p>SmartPay একটি সহজ ও নির্ভরযোগ্য ডিজিটাল পেমেন্ট প্ল্যাটফর্ম। এখানে সহজেই ক্যাশ ইন, ক্যাশ আউট এবং আপনার লেনদেনের হিসাব পরিচালনা করতে পারবেন। আপনার দৈনন্দিন আর্থিক লেনদেনকে আরও সহজ ও সুবিধাজনক করাই আমাদের লক্ষ্য।</p>
+</div>
 </div>
 
 <div class="card" id="loginBox">
@@ -264,10 +278,6 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 </div>
 </div>
 
-<div class="card">
-<h3 id="recentTitle">Recent Transactions</h3>
-<div id="recentTransactions"></div>
-</div>
 <div class="card home-banner-card">
 <div class="home-carousel" aria-label="SmartPay banners">
 <div class="home-slide active"><span>⚡ SMARTPAY</span><b>Fast & Easy Payments</b><small>স্মার্ট পেমেন্ট, সহজ জীবন</small></div>
