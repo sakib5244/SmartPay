@@ -297,7 +297,8 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 <div id="cashinPage" class="page hidden">
 <div class="card">
 <h2>💰 Cash In</h2>
-<input id="cashinMobile" placeholder="Customer Mobile">
+<input id="cashinMobile" placeholder="Customer Mobile" onblur="lookupCashinCustomer()" oninput="document.getElementById(\'cashinCustomerName\').textContent=\'\'">
+<div id="cashinCustomerName" class="item muted">Customer name will appear here</div>
 <input id="cashinAmount" type="number" placeholder="Amount">
 <button class="primary" onclick="cashin()">Confirm Cash In</button>
 </div>
@@ -612,6 +613,19 @@ loadWork();
 loadOperators();
 loadProfile();
 }catch(e){console.error(e)}
+}
+
+async function lookupCashinCustomer(){
+const mobile=document.getElementById("cashinMobile").value.trim();
+const nameBox=document.getElementById("cashinCustomerName");
+if(!mobile){nameBox.textContent="";return}
+nameBox.textContent=lang==="bn"?"কাস্টমার খোঁজা হচ্ছে...":"Looking up customer...";
+try{
+const c=await api("/customer/"+encodeURIComponent(mobile));
+nameBox.textContent=(lang==="bn"?"কাস্টমার: ":"Customer: ")+c.name;
+}catch(e){
+nameBox.textContent=e.message;
+}
 }
 
 async function cashin(){
