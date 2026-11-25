@@ -186,7 +186,11 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 .login-brand-line::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;border-radius:5px;background:linear-gradient(90deg,transparent,#63e5ff,#ffe28a,#63e5ff);transform:scaleX(0);transform-origin:right;animation:loginUnderlineRTL 2.6s ease-in-out infinite}
 @keyframes loginUnderlineRTL{0%{transform:scaleX(0);transform-origin:right}48%,100%{transform:scaleX(1);transform-origin:right}}
 .login-about-bn{max-width:620px;margin:4px auto 0;padding:0 12px;text-align:center}
-.login-about-bn p{margin:0;color:#e4f1ff;font-size:13px;line-height:1.9;font-weight:500}
+.login-about-bn{overflow:hidden;white-space:nowrap;position:relative;width:100%;max-width:100%;padding:0;margin:4px auto 0}
+.login-about-bn .login-about-rule{display:none}
+.login-about-bn p{display:inline-block;width:max-content;max-width:none;margin:0;padding-left:100%;color:#e4f1ff;font-size:13px;line-height:1.9;font-weight:500;white-space:nowrap;will-change:transform;animation:smartPayTrainScroll 22s linear infinite}
+@keyframes smartPayTrainScroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+.login-about-bn:hover p{animation-play-state:paused}
 .login-about-rule{display:block;width:44px;height:3px;border-radius:4px;margin:0 auto 10px;background:linear-gradient(90deg,#65e5ff,#ffe28a);opacity:.95}
 @media(max-width:480px){.login-about-bn p{font-size:12px;line-height:1.8}.login-brand-line{font-size:15px}}
 
