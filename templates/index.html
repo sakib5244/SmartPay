@@ -88,6 +88,27 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 #cashoutInvoice pre{white-space:pre-wrap;word-break:break-word;font:14px/1.7 Arial,sans-serif}
 #deleteAccountBtn{margin-top:12px}
 .dark #workCustomerName{background:#172d4a;color:#dcecff}
+.header-brand{display:flex;align-items:center;gap:9px;font-size:22px}
+.header-brand img{width:42px;height:42px;object-fit:contain;border-radius:10px;background:#fff}
+.sidebar-brand{width:100%;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px 16px;color:#fff;text-align:center}
+.sidebar-brand img{width:88px;height:88px;object-fit:contain;background:#fff;border-radius:20px;padding:4px;box-shadow:0 0 22px #45caff55}
+.sidebar-brand b{font-size:20px;letter-spacing:.4px}.sidebar-brand small{font-size:10px;color:#b9d8ff}
+.sidebar-carousel{width:100%;min-height:118px;position:relative;margin:4px 0 14px}
+.sidebar-slide{display:none;min-height:108px;padding:13px 10px;border-radius:15px;color:white;background:linear-gradient(135deg,#0645a6,#078be9);box-shadow:0 8px 22px #001b4c55;text-align:left;animation:bannerIn .55s ease}
+.sidebar-slide:nth-child(2){background:linear-gradient(135deg,#4c1d95,#9333ea)}
+.sidebar-slide:nth-child(3){background:linear-gradient(135deg,#064e3b,#059669)}
+.sidebar-slide.active{display:flex;flex-direction:column;justify-content:center;gap:7px}
+.sidebar-slide span{font-size:9px;font-weight:800;letter-spacing:1px;opacity:.85}
+.sidebar-slide b{font-size:13px;line-height:1.25}.sidebar-slide small{font-size:10px;color:#e0f2fe}
+@keyframes bannerIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.sidebar-dots{display:flex;justify-content:center;gap:5px;margin-top:7px}
+.sidebar-dots i{width:6px;height:6px;border-radius:50%;background:#7895bd}.sidebar-dots i.active{width:18px;border-radius:8px;background:#43d7ff}
+.sidebar-footer{margin-top:auto;padding:14px 4px 18px;text-align:center;border-top:1px solid #ffffff25;width:100%;display:flex;flex-direction:column;gap:5px}
+.dev-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#a9caff}
+.developer-animated{font-size:12px;line-height:1.4;background:linear-gradient(90deg,#fff,#62dcff,#d6a7ff,#fff);background-size:220% auto;color:transparent;background-clip:text;-webkit-background-clip:text;animation:developerGlow 3s linear infinite;text-shadow:0 0 13px #49baff55}
+@keyframes developerGlow{0%{background-position:0% center;filter:drop-shadow(0 0 2px #49baff)}100%{background-position:220% center;filter:drop-shadow(0 0 9px #49baff)}}
+@media(min-width:768px){.nav{overflow-y:auto}.sidebar-brand img{width:92px;height:92px}}
+
 
 
 /* Responsive phone, tablet and desktop layouts */
@@ -107,10 +128,11 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
  .nav{width:210px}
 }
 @media (max-width: 767px){
- .app{width:calc(100% - 76px);max-width:none;margin-left:76px;padding:12px 8px 24px}
+ .app{width:calc(100% - 132px);max-width:none;margin-left:132px;padding:12px 8px 24px}
  .header{padding:16px 12px;border-radius:0 0 18px 18px}
- .nav{position:fixed;top:0;bottom:0;left:0;right:auto;width:76px;max-width:none;margin:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px;padding:14px 5px;border-radius:0;z-index:1000}
- .nav button{font-size:10px;line-height:1.35;text-align:center;padding:10px 2px;min-height:54px;overflow-wrap:anywhere}
+ .nav{position:fixed;top:0;bottom:0;left:0;right:auto;width:132px;max-width:none;margin:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:6px;padding:12px 8px;border-radius:0;z-index:1000;overflow-y:auto}
+ .nav button{font-size:11px;line-height:1.35;text-align:center;padding:10px 3px;min-height:48px;overflow-wrap:anywhere}
+ .sidebar-brand img{width:72px;height:72px}.sidebar-brand b{font-size:17px}.sidebar-carousel{min-height:102px}.sidebar-slide{min-height:94px;padding:10px 7px}.sidebar-slide b{font-size:11px}.sidebar-slide small{font-size:9px}.developer-animated{font-size:10px}
  .card{margin:8px;padding:12px;border-radius:16px}
  .page{display:block}
 }
@@ -118,7 +140,7 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 </head>
 
 <body>
-<div id="loadingScreen"><div class="loader-ring"></div><div class="logo">💳 SmartPay</div><div>Loading your secure dashboard...</div><div class="developer-line">Developer: Sakib Hasan Rafi</div></div>
+<div id="loadingScreen"><div class="loader-ring"></div><div class="logo header-brand"><img src="/static/smartpay-logo.webp" alt="SmartPay Logo"><span>SmartPay</span></div><div>Loading your secure dashboard...</div><div class="developer-line">Developer: Sakib Hasan Rafi</div></div>
 <div id="deactivateModal" class="hidden"><div class="card"><h2>অ্যাকাউন্ট নিষ্ক্রিয় নিশ্চিত করুন</h2><p class="muted">আপনার PIN লিখে নিশ্চিত করুন। লেনদেনের ইতিহাস সংরক্ষিত থাকবে।</p><input id="deactivatePin" type="password" maxlength="4" placeholder="আপনার ৪ সংখ্যার PIN"><div class="grid"><button class="primary danger" onclick="confirmDeactivateAccount()">নিশ্চিত করুন</button><button class="secondary" onclick="closeDeactivateModal()">বাতিল</button></div></div></div>
 <div id="invoiceModal" class="hidden"><div class="card"><div class="row"><h2>Transaction Invoice</h2><button class="secondary" style="width:auto" onclick="closeInvoice()">বন্ধ</button></div><pre id="invoiceModalText" style="white-space:pre-wrap;line-height:1.8"></pre><button class="primary" onclick="window.print()">Print Invoice</button></div></div>
 <div id="actionOverlay" aria-live="polite">
@@ -333,11 +355,19 @@ body{background:radial-gradient(circle at 10% 10%,#e0edff 0,transparent 35%),lin
 
 <!-- NAV -->
 <div id="navigation" class="nav hidden">
+<div class="sidebar-brand"><img src="/static/smartpay-logo.webp" alt="SmartPay Logo"><b>SmartPay</b><small>Fast • Secure • Trusted</small></div>
+<div class="sidebar-carousel" aria-label="SmartPay banners">
+<div class="sidebar-slide active"><span>⚡ SMARTPAY</span><b>Fast & Easy Payments</b><small>স্মার্ট পেমেন্ট, সহজ জীবন</small></div>
+<div class="sidebar-slide"><span>💸 CASH IN / CASH OUT</span><b>Simple Transactions</b><small>লেনদেন এখন আরও সহজ</small></div>
+<div class="sidebar-slide"><span>🛡️ SECURE WALLET</span><b>Your SmartPay Account</b><small>আপনার অ্যাকাউন্ট, আপনার নিয়ন্ত্রণ</small></div>
+<div class="sidebar-dots"><i class="active"></i><i></i><i></i></div>
+</div>
 <button onclick="openPage('homePage')" id="navHome">🏠<br>Home</button>
 <button onclick="openPage('historyPage')" id="navHistory">📜<br>History</button>
 <button onclick="openPage('notificationPage')" id="navNotifications">🔔<br><span id="notificationCount"></span></button>
 <button onclick="openPage('profilePage')" id="navProfile">👤<br>Profile</button>
 <button id="navAdmin" onclick="openPage('adminPage')" class="hidden">🛡️<br>Admin</button>
+<div class="sidebar-footer"><span class="dev-label">Developer</span><b class="developer-animated">Sakib Hasan Rafi</b></div>
 </div>
 
 </div>
@@ -392,6 +422,15 @@ document.getElementById("cashinAction").innerHTML="💰 "+T("cashin");
 }
 
 renderLanguage();
+let bannerIndex=0;
+setInterval(()=>{
+ const slides=[...document.querySelectorAll(".sidebar-slide")];
+ const dots=[...document.querySelectorAll(".sidebar-dots i")];
+ if(!slides.length)return;
+ slides.forEach((el,i)=>el.classList.toggle("active",i===bannerIndex));
+ dots.forEach((el,i)=>el.classList.toggle("active",i===bannerIndex));
+ bannerIndex=(bannerIndex+1)%slides.length;
+},4000);
 window.addEventListener("load",()=>setTimeout(()=>document.getElementById("loadingScreen").classList.add("done"),5000));
 
 async function api(url,method="GET",data=null){
